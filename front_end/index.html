@@ -5,8 +5,8 @@
   <style>
     /* Set the size of the map */
     #map {
-      height: 70%;
-      width: 100%;
+      height: 92%;
+      width: 98.5%;
     }
 
     html, body {
@@ -54,7 +54,7 @@
 
     .navbar {
       position: fixed;
-      top: 0;
+      bottom: 0;
       left: 0;
       width: 100%;
       height: 50px;
@@ -74,6 +74,7 @@
       cursor: pointer;
       color: black;
       position: relative;
+      left : 650px; 
     }
 
     .side-menu {
@@ -116,8 +117,7 @@
 </head>
 <body>
   <div class="navbar">
-    <button class="menu-btn" id="menu-btn">&#9776;</button>
-    <span>Smart Shield</span>
+    <span class="menu-btn" id="menu-btn">Smart Shield</button>
   </div>
 
   <div class="side-menu" id="side-menu">
@@ -133,11 +133,7 @@
     menuButton.addEventListener('click', () => {
       sideMenu.classList.toggle('open');
     });
-  </script>
 
-  <div id="map"></div>
-
-  <script>
     let map, directionsService, directionsRenderer, userLocationMarker;
 
     function initMap() {
@@ -190,12 +186,35 @@
       directionsService.route(request, function(result, status) {
         if (status === google.maps.DirectionsStatus.OK) {
           directionsRenderer.setDirections(result);
+
+          // Generate Google Maps link
+          const mapsLink = `https://www.google.com/maps/dir/${encodeURIComponent(start)}/${encodeURIComponent(destination)}`;
+
+          // Send email
+          sendEmail(start, destination, mapsLink);
         } else {
           alert("Could not find route: " + status);
         }
       });
     }
+
+    function sendEmail(start, destination, link) {
+      fetch('http://localhost:3000/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ start, destination, link })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(error => console.error('Error:', error));
+    }
   </script>
+
+  <div id="map"></div>
 
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAue5c3sbdxrluKbDFYFQjIuncBrsZHRho&callback=initMap&libraries=places"

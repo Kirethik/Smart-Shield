@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accident Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        table { width: 80%; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 10px; }
+        th { background-color: #f2f2f2; }
+        select { margin: 10px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Accident Dashboard</h1>
+
+    <!-- Dropdown for Filtering -->
+    <label for="filter">Filter Cases:</label>
+    <select id="filter">
+        <option value="all">All</option>
+        <option value="complete">Complete</option>
+        <option value="pending">Pending</option>
+    </select>
+
+    <!-- Accident Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Accident ID</th>
+                <th>Vehicle Reg</th>
+                <th>Emergency Contact</th>
+                <th>Ambulance</th>
+                <th>Status</th>
+                <th>Live Tracking</th>
+            </tr>
+        </thead>
+        <tbody id="accidentTableBody"></tbody>
+    </table>
+
+    <script>
+        let accidentData = [];
+
+        // ✅ Fetch Accident Data
+        async function fetchAccidents() {
+            try {
+                const response = await fetch('/api/accidents');
+                accidentData = await response.json();
+                renderTable(accidentData);
+            } catch (error) {
+                console.error("Error fetching accident data:", error);
+            }
+        }
+
+        // ✅ Render Table
+        function renderTable(data) {
+            const tableBody = document.getElementById('accidentTableBody');
+            tableBody.innerHTML = "";
+            
+            data.forEach(accident => {
+                const row = `<tr>
+                    <td>${accident.id}</td>
+                    <td>${accident.vehicleReg}</td>
+                    <td>${accident.emergencyContact || 'N/A'}</td>
+                    <td>${accident.ambulance || 'N/A'}</td>
+                    <td>${accident.status || 'Pending'}</td>
+                    <td><a href="${accident.trackingLink}" target="_blank">Track</a></td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // ✅ Filter Data
+        document.getElementById('filter').addEventListener('change', function () {
+            const filterValue = this.value;
+            let filteredData = filterValue === "all" ? accidentData : accidentData.filter(acc => acc.status.toLowerCase() === filterValue);
+            renderTable(filteredData);
+        });
+
+        // Fetch accidents on page load
+        fetchAccidents();
+    </script>
+</body>
+</html>

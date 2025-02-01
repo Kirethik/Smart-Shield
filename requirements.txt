@@ -3,3 +3,4 @@ nodemailer
 dotenv 
 cors 
 body-parser
+mysql2
